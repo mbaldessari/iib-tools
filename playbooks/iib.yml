@@ -63,6 +63,31 @@
       ansible.builtin.debug:
         msg: "{{ iib_dict }}"
 
+    - name: Build docker config JSON
+      ansible.builtin.set_fact:
+        dockerconfig:
+          auths: >-
+            {{ 
+              { 
+                iib_dest_registry: {
+                  "username": iib_dest_username,
+                  "password": iib_dest_password,
+                  "auth": (iib_dest_username + ':' + iib_dest_password) | b64encode
+                }
+              }
+            }}
+
+    - name: Get a tempfile for the pull secrets
+      ansible.builtin.tempfile:
+        state: directory
+      register: pull_secrets_tempfolder          
+
+    - name: Write merged docker config file
+      copy:
+        content: "{{ dockerconfig | to_nice_json }}"
+        dest: "{{ pull_secrets_tempfolder.path }}/.dockerconfig.json"
+        mode: '0644'
+
     - name: Set up IIB images in cluster
       ansible.builtin.include_tasks: setup-iib.yml
       with_items: "{{ iib_dict | dict2items }}"

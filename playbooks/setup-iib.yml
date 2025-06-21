@@ -2,4 +2,4 @@
 # to quay.io/rhn-support-mbaldess/iib:993390
 - name: Push IIB to "{{ iib_dest_registry }}"
   ansible.builtin.shell:
-    skopeo copy docker://{{ item.value['iib_image'] }} docker://{{ iib_dest_registry}}:{{ item.value['iib'] }}
+    skopeo copy --authfile={{ pull_secrets_tempfolder.path }}/.dockerconfig.json docker://{{ item.value['iib_image'] }} docker://{{ iib_dest_registry}}/{{ iib_dest_image }}:{{ item.value['iib'] }}
