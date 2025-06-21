@@ -1,6 +1,81 @@
+- name: Set FBC file
+  ansible.builtin.set_fact:
+    fbc_file: /tmp/fbc-{{ item.value['iib'] }}.json
+    ver_file: /tmp/{{ item.key }}-{{ item.value['iib'] }}.json
+
 - name: Pull IIB locally
   ansible.builtin.command: podman pull {{ item.value['iib_image'] }}
 
 - name: Export fbc
   ansible.builtin.shell: |
-    podman run {{ item.value['iib_image'] }} render /configs > /tmp/fbc-{{ item.value['iib'] }}.json
+    podman run {{ item.value['iib_image'] }} render /configs > {{ fbc_file }}
+
+- name: Get all available channels
+  ansible.builtin.shell: |
+    jq 'select(.schema == "olm.channel" and .package == "kernel-module-management").name' {{ fbc_file }}
+  register: all_channels
+
+- name: Print all available channels
+  ansible.builtin.debug:
+    msg: "{{ all_channels.stdout_lines }}"
+
+- name: Get channel for package if default set
+  ansible.builtin.shell: |
+    jq -r 'select(.schema == "olm.package" and .name == "{{ item.key }}").defaultChannel' {{ fbc_file }}
+  register: channel_raw
+  when: item.value['channel'] | length == 0
+
+- name: Set default channel fact
+  ansible.builtin.set_fact:
+    channel: "{{ channel_raw.stdout }}"
+  when: item.value['channel'] | length == 0
+
+- name: Set channel fact
+  ansible.builtin.set_fact:
+    channel: "{{ item.value['channel'] }}"
+  when: item.value['channel'] | length > 0
+
+- name: Print channel
+  ansible.builtin.debug:
+    msg: "{{ channel }}"
+
+- name: Get versions for channel
+  ansible.builtin.shell: |
+    set -e
+    jq 'select(.schema == "olm.bundle" and .package == "{{ item.key }}")' {{ fbc_file }} > {{ ver_file }}
+    jq -r '.properties[] | select(.type == "olm.package") | .value.version' {{ ver_file }}
+  register: all_versions
+
+- name: Print all available versions
+  ansible.builtin.debug:
+    msg: "{{ all_versions.stdout_lines }}"
+
+- name: Use the latest version in the list (FIXME, is this always true?)
+  ansible.builtin.set_fact:
+    version: "{{ all_versions.stdout_lines[-1] }}"
+
+- name: Print used version
+  ansible.builtin.debug:
+    msg: "{{ version }}"
+
+- name: Set csv file
+  ansible.builtin.set_fact:
+    csv_file: "/tmp/{{ version }}-{{ item.key }}-{{ item.value['iib'] }}.json" 
+
+- name: Fetching whole object
+  ansible.builtin.shell: |
+    set -e
+    jq 'select(.properties[]? | select(.type == "olm.package" and .value.version == "{{ version }}"))' {{ ver_file }} > {{ csv_file }}
+
+- name: Get all images
+  ansible.builtin.shell: |
+    jq -r '.relatedImages[]?.image' {{ csv_file }}
+  register: all_images_raw
+
+- name: Set all images
+  ansible.builtin.set_fact:
+    all_images: "{{ all_images_raw.stdout_lines }}"
+
+- name: Print all images
+  ansible.builtin.debug:
+    msg: "{{ all_images }}"
