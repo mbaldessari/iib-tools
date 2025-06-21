@@ -66,13 +66,18 @@
       ansible.builtin.debug:
         msg: "{{ iib_dict }}"
 
-    - name: Build docker config JSON
+    - name: Get a tempfile for the pull secrets
+      ansible.builtin.tempfile:
+        state: directory
+      register: pull_secrets_tempfolder          
+
+    - name: Build docker config JSON for IIB upload only
       ansible.builtin.set_fact:
-        dockerconfig:
+        iib_dockerconfig:
           auths: >-
             {{ 
               { 
-                iib_dest_registry: {
+                iib_dest_full: {
                   "username": iib_dest_username,
                   "password": iib_dest_password,
                   "auth": (iib_dest_username + ':' + iib_dest_password) | b64encode
@@ -80,16 +85,56 @@
               }
             }}
 
-    - name: Get a tempfile for the pull secrets
-      ansible.builtin.tempfile:
-        state: directory
-      register: pull_secrets_tempfolder          
+    - name: Build docker config JSON for ocp cluster
+      ansible.builtin.set_fact:
+        ocp_dockerconfig:
+          auths: >-
+            {{ 
+              { 
+                brew_registry_url: {
+                  "username": brew_registry_username,
+                  "password": brew_registry_password,
+                  "auth": (brew_registry_username + ':' + brew_registry_password) | b64encode
+                }
+              }
+            }}
 
-    - name: Write merged docker config file
+    - name: Write merged docker config file for iib registry
       copy:
-        content: "{{ dockerconfig | to_nice_json }}"
-        dest: "{{ pull_secrets_tempfolder.path }}/.dockerconfig.json"
+        content: "{{ iib_dockerconfig | to_nice_json }}"
+        dest: "{{ pull_secrets_tempfolder.path }}/{{ iib_dest_registry }}.json"
         mode: '0644'
+
+    - name: Get current cluster pull secrets
+      ansible.builtin.command:
+        oc extract secret/pull-secret -n openshift-config --to=-
+      register: pull_secrets_raw
+
+    - name: Parse secrets as JSON
+      ansible.builtin.set_fact:
+        pull_secrets: "{{ pull_secrets_raw.stdout | from_json }}"
+
+    - debug:
+        msg: "{{ ocp_dockerconfig }}"
+
+    - name: Add mirror registry to pull secrets
+      ansible.builtin.set_fact:
+        ocp_secrets: "{{ pull_secrets | combine(ocp_dockerconfig, recursive=true) }}"
+    
+    - name: Write merged docker config file for ocp cluster
+      copy:
+        content: "{{ ocp_secrets | to_nice_json }}"
+        dest: "{{ pull_secrets_tempfolder.path }}/ocpcluster.json"
+        mode: '0644'
+
+    - name: Template mirroring bits
+      ansible.builtin.template:
+        src: ../templates/mirror-redirects.yaml
+        dest: /tmp/mirror-redirects.yaml
+
+    - name: Apply mirroring bits
+      ansible.builtin.shell:
+        oc apply -f /tmp/mirror-redirects.yaml
 
     - name: Set up IIB images in cluster
       ansible.builtin.include_tasks: setup-iib.yml

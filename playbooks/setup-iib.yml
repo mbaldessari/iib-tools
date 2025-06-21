@@ -6,8 +6,10 @@
 # Copy from registry-proxy.engineering.redhat.com/rh-osbs/iib:993390
 # to quay.io/rhn_support_mbaldess/iib:993390
 - name: Push IIB to "{{ iib_dest_registry }}"
-  ansible.builtin.shell:
-    skopeo copy --authfile={{ pull_secrets_tempfolder.path }}/.dockerconfig.json docker://{{ item.value['iib_image'] }} docker://{{ iib_dest_registry}}/{{ iib_dest_image }}:{{ item.value['iib'] }}
+  ansible.builtin.shell: >-
+    skopeo copy --authfile={{ pull_secrets_tempfolder.path }}/{{ iib_dest_registry }}.json 
+    docker://{{ item.value['iib_image'] }}
+    docker://{{ iib_dest_full }}/{{ iib_dest_image }}:{{ item.value['iib'] }}
 
 - name: Apply catalog source
   ansible.builtin.shell:

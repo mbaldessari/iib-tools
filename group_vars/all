@@ -3,9 +3,15 @@ iib_images: "{{ lookup('env', 'INDEX_IMAGES') }}"
 operator: "{{ lookup('env', 'OPERATOR') | default('openshift-gitops-operator', true) }}"
 channels: "{{ lookup('env', 'CHANNELS') | default('', true) }}"
 
-iib_dest_registry: "quay.io/rhn_support_mbaldess"
+iib_dest_registry: "quay.io"
+iib_dest_org: "rhn_support_mbaldess"
+iib_dest_full: "{{ iib_dest_registry }}/{{ iib_dest_org }}"
 iib_dest_image: "iib"
 iib_dest_username: "{{ lookup('file', '~/.quay_user' | expanduser) }}"
 iib_dest_password: "{{ lookup('file', '~/.quay_pass' | expanduser) }}"
+
+brew_registry_url: "brew.registry.redhat.io"
+brew_registry_username: "{{ lookup('file', '~/.brew_registry_user' | expanduser) }}"
+brew_registry_password: "{{ lookup('file', '~/.brew_registry_pass' | expanduser) }}"
 
 internal_registry_ns: openshift-marketplace
