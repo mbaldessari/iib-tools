@@ -1,0 +1,8 @@
+iib_images: "{{ lookup('env', 'INDEX_IMAGES') }}"
+# We can use default(, true) below because OPERATOR is a string and not a boolean
+operator: "{{ lookup('env', 'OPERATOR') | default('openshift-gitops-operator', true) }}"
+channels: "{{ lookup('env', 'CHANNELS') | default('', true) }}"
+
+iib_dest_registry: "quay.io/rhn-support-mbaldess/iib"
+iib_dest_username: "{{ lookup('file', '~/.quay_user' | expanduser) }}"
+iib_dest_password: "{{ lookup('file', '~/.quay_pass' | expanduser) }}"
