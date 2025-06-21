@@ -59,6 +59,9 @@
         - "{{ channel_list }}"
         - "{{ iib_image_list }}"
 
+    - name: Check we can reache the cluster
+      ansible.builtin.command: oc cluster-info
+
     - name: Working with the following IIB data
       ansible.builtin.debug:
         msg: "{{ iib_dict }}"

@@ -7,3 +7,5 @@ iib_dest_registry: "quay.io/rhn_support_mbaldess"
 iib_dest_image: "iib"
 iib_dest_username: "{{ lookup('file', '~/.quay_user' | expanduser) }}"
 iib_dest_password: "{{ lookup('file', '~/.quay_pass' | expanduser) }}"
+
+internal_registry_ns: openshift-marketplace
