@@ -14,6 +14,10 @@ help: ## This help message
 iib: ## iib an OCP cluster on AWS using the ibm-fusion-access operator and configures gpfs on top
 	ansible-playbook -i hosts $(TAGS_STRING) $(EXTRA_VARS) playbooks/iib.yml
 
+.PHONY: info
+info: ## Print info about iib
+	ansible-playbook -i hosts $(TAGS_STRING) $(EXTRA_VARS) playbooks/info.yml
+
 .PHONY: list-tags
 list-tags: ## Lists all tags in the install playbook
 	ansible-playbook --list-tags playbooks/install.yml

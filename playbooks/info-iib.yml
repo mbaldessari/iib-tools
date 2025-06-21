@@ -1,0 +1,6 @@
+- name: Pull IIB locally
+  ansible.builtin.command: podman pull {{ item.value['iib_image'] }}
+
+- name: Export fbc
+  ansible.builtin.shell: |
+    podman run {{ item.value['iib_image'] }} render /configs > /tmp/fbc-{{ item.value['iib'] }}.json

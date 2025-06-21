@@ -4,6 +4,6 @@ metadata:
   name: iib-{{ item.value['iib'] }}
   namespace: {{ internal_registry_ns }}
 spec:
-  image: {{ iib_dest_registry}}/{{ iib_dest_image }}:{{ item.value['iib'] }}
+  image: {{ iib_dest_full }}/{{ iib_dest_image }}:{{ item.value['iib'] }}
   sourceType: grpc
   displayName: IIB {{ item.value['iib'] }}

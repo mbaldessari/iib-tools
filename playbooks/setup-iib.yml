@@ -1,3 +1,6 @@
+- name: Pull IIB locally
+  ansible.builtin.command: podman pull {{ item.value['iib_image'] }}
+
 - name: Template catalog source
   ansible.builtin.template:
     src: ../templates/catalogsource.j2.yaml
