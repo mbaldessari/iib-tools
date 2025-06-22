@@ -6,4 +6,7 @@ mirror:
     packages:
       - name: {{ item.key }}
         channels:
+          # We always have to include the default channel or oc-mirror explodes
+          # the default channel "stable" was filtered out, a new default channel must be configured for this package
+          - name: {{ default_channel }}
           - name: {{ channel }}

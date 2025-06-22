@@ -22,12 +22,15 @@
 - name: Get channel for package if default set
   ansible.builtin.shell: |
     jq -r 'select(.schema == "olm.package" and .name == "{{ item.key }}").defaultChannel' {{ fbc_file }}
-  register: channel_raw
-  when: item.value['channel'] | length == 0
+  register: default_channel_raw
 
 - name: Set default channel fact
   ansible.builtin.set_fact:
-    channel: "{{ channel_raw.stdout }}"
+    default_channel: "{{ default_channel_raw.stdout }}"
+
+- name: Set channel fact if default is chosen
+  ansible.builtin.set_fact:
+    channel: "{{ default_channel }}"
   when: item.value['channel'] | length == 0
 
 - name: Set channel fact
@@ -128,8 +131,8 @@
 
 - name: Oc Mirror V2 catalog manifests only to "{{ iib_local_folder_new }}"
   ansible.builtin.shell: >-
-    oc-mirror --v2 --log-level=debug
-    --config=./imageset-configuration.yaml file://{{ iib_local_folder_new }} 2>&1 | log.txt
+    oc-mirror --v2 --log-level debug
+    --config=./imageset-configuration.yaml file://{{ iib_local_folder_new }} > log.txt 2>&1
   args:
     chdir: "{{ iib_local_folder_new }}"
   failed_when: false
