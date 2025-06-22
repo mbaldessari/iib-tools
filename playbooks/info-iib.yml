@@ -39,14 +39,14 @@
   ansible.builtin.debug:
     msg: "{{ channel }}"
 
-- name: Get versions for channel
+- name: Get versions for channel {{ channel }}
   ansible.builtin.shell: |
     set -e
     jq 'select(.schema == "olm.bundle" and .package == "{{ item.key }}")' {{ fbc_file }} > {{ ver_file }}
     jq -r '.properties[] | select(.type == "olm.package") | .value.version' {{ ver_file }}
   register: all_versions
 
-- name: Print all available versions
+- name: Print all available versions for channel {{ channel }}
   ansible.builtin.debug:
     msg: "{{ all_versions.stdout_lines }}"
 
@@ -79,3 +79,29 @@
 - name: Print all images
   ansible.builtin.debug:
     msg: "{{ all_images }}"
+
+- name: Set IIB local folder fact
+  ansible.builtin.set_fact:
+    iib_local_folder: "/tmp/manifest-{{ item.value['iib'] }}"
+
+- name: Remove manifest folder "{{ iib_local_folder }}"
+  ansible.builtin.file:
+    path: "{{ iib_local_folder }}"
+    state: absent
+
+- name: Create manifest folder "{{ iib_local_folder }}"
+  ansible.builtin.file:
+    path: "{{ iib_local_folder }}"
+    state: directory
+    mode: "0755"
+
+# This generates files in /tmp/manifest-IIB:
+# - mapping.txt
+# - catalogSource.yaml
+# - imageContentSourcePolicy.yaml
+- name: Mirror catalog manifests only to "{{ iib_local_folder }}"
+  ansible.builtin.shell: >-
+    oc adm catalog mirror --insecure --manifests-only --to-manifests=.
+    "{{ item.value['iib_image'] }}" "{{ rh_internal_registry }}/rh-osbs" > catalog.log 2>&1
+  args:
+    chdir: "{{ iib_local_folder }}"

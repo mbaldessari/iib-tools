@@ -15,3 +15,4 @@ brew_registry_username: "{{ lookup('file', '~/.brew_registry_user' | expanduser)
 brew_registry_password: "{{ lookup('file', '~/.brew_registry_pass' | expanduser) }}"
 
 internal_registry_ns: openshift-marketplace
+rh_internal_registry: registry-proxy.engineering.redhat.com
