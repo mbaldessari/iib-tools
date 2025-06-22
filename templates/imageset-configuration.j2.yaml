@@ -1,0 +1,9 @@
+kind: ImageSetConfiguration
+apiVersion: mirror.openshift.io/v2alpha1
+mirror:
+  operators:
+  - catalog: {{ item.value['iib_image'] }}
+    packages:
+      - name: {{ item.key }}
+        channels:
+          - name: {{ channel }}
