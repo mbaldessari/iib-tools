@@ -128,8 +128,8 @@
 
 - name: Oc Mirror V2 catalog manifests only to "{{ iib_local_folder_new }}"
   ansible.builtin.shell: >-
-    oc-mirror -v2 adm catalog mirror --insecure --manifests-only --to-manifests=.
-    "{{ item.value['iib_image'] }}" "{{ rh_internal_registry }}/rh-osbs" > catalog.log 2>&1
+    oc-mirror --v2 --log-level=debug
+    --config=./imageset-configuration.yaml file://{{ iib_local_folder_new }} 2>&1 | log.txt
   args:
-    chdir: "{{ iib_local_folder }}"
-
+    chdir: "{{ iib_local_folder_new }}"
+  failed_when: false
