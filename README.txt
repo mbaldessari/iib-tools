@@ -1,3 +1,10 @@
+Run it like this:
+
+```sh
+OPERATOR=kernel-module-management INDEX_IMAGES=registry-proxy.engineering.redhat.com/rh-osbs/iib:993390 CHANNELS=release-2.4 make iib
+```
+
+
 Bunch of ideas from:
 https://spaces.redhat.com/display/amqbroker/Using+Brew+images+on+external+clusters+deployed+on+AWS
 
