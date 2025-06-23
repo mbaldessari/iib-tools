@@ -103,6 +103,13 @@
                   "password": brew_registry_password,
                   "auth": (brew_registry_username + ':' + brew_registry_password) | b64encode
                 }
+              },
+              { 
+                stage_registry_url: {
+                  "username": stage_registry_username,
+                  "password": stage_registry_password,
+                  "auth": (stage_registry_username + ':' + stage_registry_password) | b64encode
+                }
               }
             }}
 
@@ -120,9 +127,6 @@
     - name: Parse secrets as JSON
       ansible.builtin.set_fact:
         pull_secrets: "{{ pull_secrets_raw.stdout | from_json }}"
-
-    - debug:
-        msg: "{{ ocp_dockerconfig }}"
 
     - name: Add mirror registry to pull secrets
       ansible.builtin.set_fact:
