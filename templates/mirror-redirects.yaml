@@ -10,3 +10,13 @@ spec:
    - source: registry-proxy.engineering.redhat.com
      mirrors:
        - brew.registry.redhat.io
+---
+apiVersion: config.openshift.io/v1
+kind: ImageTagMirrorSet
+metadata:
+  name: iib-tag
+spec:
+  imageTagMirrors:
+    - source: registry-proxy.engineering.redhat.com
+      mirrors:
+       - brew.registry.redhat.io

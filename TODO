@@ -1,0 +1,3 @@
+We need a programmatic way to limit the mirroring to match the operators
+we are installing. Right now we hardcoded kmm but we should try and be programmatic
+about it

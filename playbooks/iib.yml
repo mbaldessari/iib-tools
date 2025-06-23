@@ -6,7 +6,6 @@
       ansible.builtin.shell: |
         which "{{ item }}"
       with_items:
-        - skopeo
         - oc
         - podman
 
@@ -75,20 +74,6 @@
         state: directory
       register: pull_secrets_tempfolder          
 
-    - name: Build docker config JSON for IIB upload only
-      ansible.builtin.set_fact:
-        iib_dockerconfig:
-          auths: >-
-            {{ 
-              { 
-                iib_dest_full: {
-                  "username": iib_dest_username,
-                  "password": iib_dest_password,
-                  "auth": (iib_dest_username + ':' + iib_dest_password) | b64encode
-                }
-              }
-            }}
-
     - name: Build docker config JSON for ocp cluster
       ansible.builtin.set_fact:
         ocp_dockerconfig:
@@ -107,12 +92,6 @@
                 }
               }
             }}
-
-    - name: Write merged docker config file for iib registry
-      copy:
-        content: "{{ iib_dockerconfig | to_nice_json }}"
-        dest: "{{ pull_secrets_tempfolder.path }}/{{ iib_dest_registry }}.json"
-        mode: '0644'
 
     - name: Get current cluster pull secrets
       ansible.builtin.command:
