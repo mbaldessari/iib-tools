@@ -63,15 +63,12 @@
       ansible.builtin.include_tasks: info-iib.yml
       with_items: "{{ iib_dict | dict2items }}"
 
-    - ansible.builtin.fail:
-        msg: stop
-
-    - name: Check we can reach the cluster
-      ansible.builtin.command: oc cluster-info
-
     - name: Working with the following IIB data
       ansible.builtin.debug:
         msg: "{{ iib_dict }}"
+
+    - name: Check we can reach the cluster
+      ansible.builtin.command: oc cluster-info
 
     - name: Get a tempfile for the pull secrets
       ansible.builtin.tempfile:
