@@ -65,7 +65,8 @@
 
     - ansible.builtin.fail:
         msg: stop
-    - name: Check we can reache the cluster
+
+    - name: Check we can reach the cluster
       ansible.builtin.command: oc cluster-info
 
     - name: Working with the following IIB data
