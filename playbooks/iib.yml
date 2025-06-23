@@ -99,9 +99,7 @@
                   "username": brew_registry_username,
                   "password": brew_registry_password,
                   "auth": (brew_registry_username + ':' + brew_registry_password) | b64encode
-                }
-              },
-              { 
+                },
                 stage_registry_url: {
                   "username": stage_registry_username,
                   "password": stage_registry_password,

@@ -6,7 +6,7 @@ spec:
  imageDigestMirrors:
    - source: registry.redhat.io
      mirrors:
-       - stage.registry.redhat.io
+       - registry.stage.redhat.io
    - source: registry-proxy.engineering.redhat.com
      mirrors:
        - brew.registry.redhat.io
