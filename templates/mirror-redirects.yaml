@@ -4,7 +4,7 @@ metadata:
  name: brew-stage-registry-v2
 spec:
  imageDigestMirrors:
-   - source: registry.redhat.io
+   - source: registry.redhat.io/kmm
      mirrors:
        - registry.stage.redhat.io
    - source: registry-proxy.engineering.redhat.com
